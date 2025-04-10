@@ -4,14 +4,14 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Dekat</title>
+    <title>Rotokemas Indonesia</title>
 
     <!-- Stylesheets -->
     <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}" type="image/x-icon">
-    <link rel="icon" href="{{ asset('assets/images/favicon.png') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.jpg') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('assets/images/favicon.jpg') }}" type="image/x-icon">
     <!-- Favicon -->
      
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -33,23 +33,6 @@
                     <div class="animation-preloader">
                         <div class="loader-image">
                             <img src="{{ asset('assets/images/loader.gif') }}" alt="loader">
-                        </div>
-                        <div class="txt-loading">
-                            <span data-text-preloader="D" class="letters-loading">
-                                D
-                            </span>
-                            <span data-text-preloader="e" class="letters-loading">
-                                e
-                            </span>
-                            <span data-text-preloader="k" class="letters-loading">
-                                k
-                            </span>
-                            <span data-text-preloader="a" class="letters-loading">
-                                a
-                            </span>
-                            <span data-text-preloader="t" class="letters-loading">
-                                t
-                            </span>
                         </div>
                     </div>
                 </div>
@@ -77,10 +60,11 @@
                                 <nav class="main-menu navbar-expand-md navbar-light">
                                     <div class="collapse navbar-collapse show clearfix" id="navbarSupportedContent">
                                         <ul class="navigation">
-                                            <li><a href="{{ url('/') }}">Beranda</a></li>
-                                            <li><a href="{{ url('/layanan') }}">layanan</a></li>
-                                            <li><a href="{{ url('/tentang') }}">Tentang</a></li>
-                                            <li><a href="{{ url('/kontak') }}">Kontak</a></li>
+                                            <li><a href="{{ url('/') }}">Home</a></li>
+                                            <li><a href="{{ url('/layanan') }}">Media & News</a></li>
+                                            <li><a href="{{ url('/kontak') }}">Our Members</a></li>
+                                            <li><a href="{{ url('/tentang') }}">About</a></li>
+
                                         </ul>
                                     </div>
                                 </nav>

@@ -29,40 +29,87 @@
         </div>
     </section>
 
-
-    <!-- Categories -->
-    <section class="categories">
+    <!-- about page -->
+    <section class="about-page">
         <div class="container">
-            <div class="common-title-container">
-                <div class="common-title mb-0">
-                    <img src="{{ asset('assets/images/shape/title-shape-1.png') }}" alt="shape">
-                    <h3>Kategori</h3>
-                </div>
-                <a href="{{ url('layanan') }}" class="btn-1">Selengkapnya <i class="icon-arrow-1"></i></a>
-            </div>
             <div class="row">
-                @forelse($kategori_all as $kategori)
-                    <div class="col-lg-3 col-md-6">
-                        <div class="categories-single">
-                            <div class="categories-single-image">
-                                <a href="{{ url('layanan') }}?kategori={{ $kategori->id }}">
-                                    <img src="{{ $kategori->image_url }}" class="w-100" alt="{{ $kategori->title }}">
+                <div class="col-lg-7">
+                    <div class="about-page-left">
+                        <div class="yellow-shape"></div>
+                        <div class="pink-shape"></div>
+                        <div class="about-page-left-image">
+                            <img src="{{ asset('assets/images/resource/tentang dekat.png') }}" alt="image">
+                            <div class="about-shape">
+                                <img src="{{ asset('assets/images/shape/about-1.png') }}" alt="shape">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="rewards-left-container">
+                        <div class="rewards-left-container-inner">
+                            <div class="common-title mb_30">
+                                <h6><i class="fa-solid fa-angles-right"></i> SHOWING </h6>
+                                <h3>About Rotokemas Indonesia</h3>
+                                <p style="text-align: justify;">The Packaging Industry Association - Rotokemas is an organization established to support the development of the packaging industry in Indonesia, focusing on innovation, standardization, and collaboration among industry players. Since joining on March 22, 2021, Rotokemas has served as a platform for packaging companies to share knowledge, enhance production quality, and expand business networks.</p>
+                            </div>
+                            {{-- <div class="rewards-left-list">
+                                <ul>
+                                    <li><i class="fa-sharp fa-light fa-circle-check"></i>Mitra Profesional & Berpengalaman</li>
+                                    <li><i class="fa-sharp fa-light fa-circle-check"></i>Akses Gratis ke Ribuan Peluang Kerja</li>
+                                    <li><i class="fa-sharp fa-light fa-circle-check"></i>Dukung Pertumbuhan Bisnis & Basis Klien</li>
+                                    <li><i class="fa-sharp fa-light fa-circle-check"></i>Penghasilan Tambahan dengan Jadwal Fleksibel</li>
+                                    <li><i class="fa-sharp fa-light fa-circle-check"></i>Mitra Profesional & Berpengalama</li>
+                                </ul>
+                            </div> --}}
+                            <div class="reward-btn">
+                                <a href="{{ url('/tentang') }}" class="btn-1">See More <i class="icon-arrow-1"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- featured -->
+    <section class="featured">
+        <div class="container">
+            <div class="common-title">
+                <img src="{{ asset('assets/images/shape/title-shape-1.png') }}" alt="shape">
+                <h6>SHOWING</h6>
+                <h3>Recent Media & News</h3>
+            </div>
+            <div class="row g-4">
+                @forelse($layanan_all as $layanan)
+                    <div class="col-lg-4 col-md-6">
+                        <div class="featured-single">
+                            <div class="featured-single-image">
+                                <a href="{{ url('layanan/' . $layanan->id) }}">
+                                    <img src="{{ $layanan->image_url }}" class="w-100"  alt="image">
                                 </a>
                             </div>
-                            <div class="categories-single-title">
-                                <a href="{{ url('layanan') }}?kategori={{ $kategori->id }}">{{ $kategori->title }}</a>
+                            <div class="featured-single-wishlist">
+                                <h6>{{ @$layanan->kategori->title}}</h6>
+                            </div>
+                            <div class="featured-single-content">
+
+                                <a href="{{ url('layanan/' . $layanan->id) }}">{{ $layanan->title }} </a>
+                                <div class="featured-single-info">
+                                    <div class="featured-single-info-left">
+                                        <h5>Rp.{{ formating_number($layanan->harga_member, 0) }}</h5>
+                                    </div>
+                                    <a href="{{ url('pesan/' . $layanan->id) }}">Pesan Sekarang</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 @empty
-                    <div class="col-12 text-center">
-                        <p>Tidak ada kategori yang tersedia.</p>
-                    </div>
                 @endforelse
             </div>
         </div>
     </section>
-    <!-- Categories -->
+    <!-- featured -->
 
 
     <!-- services -->
@@ -128,44 +175,7 @@
     </section>
     <!-- services -->
 
-    <!-- featured -->
-    <section class="featured">
-        <div class="container">
-            <div class="common-title">
-                <img src="{{ asset('assets/images/shape/title-shape-1.png') }}" alt="shape">
-                <h6>DITAMPILKAN</h6>
-                <h3>Layanan Terpopuler</h3>
-            </div>
-            <div class="row g-4">
-                @forelse($layanan_all as $layanan)
-                    <div class="col-lg-4 col-md-6">
-                        <div class="featured-single">
-                            <div class="featured-single-image">
-                                <a href="{{ url('layanan/' . $layanan->id) }}">
-                                    <img src="{{ $layanan->image_url }}" class="w-100"  alt="image">
-                                </a>
-                            </div>
-                            <div class="featured-single-wishlist">
-                                <h6>{{ @$layanan->kategori->title}}</h6>
-                            </div>
-                            <div class="featured-single-content">
-
-                                <a href="{{ url('layanan/' . $layanan->id) }}">{{ $layanan->title }} </a>
-                                <div class="featured-single-info">
-                                    <div class="featured-single-info-left">
-                                        <h5>Rp.{{ formating_number($layanan->harga_member, 0) }}</h5>
-                                    </div>
-                                    <a href="{{ url('pesan/' . $layanan->id) }}">Pesan Sekarang</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                @endforelse
-            </div>
-        </div>
-    </section>
-    <!-- featured -->
+    
 
     <!-- counter -->
     <section class="counter">
@@ -236,8 +246,8 @@
                 </div>
                 <div class="common-title text-center">
                     <img src="{{ asset('assets/images/shape/title-shape-1.png') }}" alt="shape">
-                    <h6>TESTIMONIAL</h6>
-                    <h3>Cerita Kami Melalui Ulasan Pelanggan</h3>
+                    <h6>SHOWING</h6>
+                    <h3>Our Member</h3>
                 </div>
 
                 <div class="testimonial-carousel">
