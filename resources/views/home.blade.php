@@ -76,40 +76,6 @@
             <div>{!! $joinPerYearChart->container() !!}</div>
         </div>
 
-        <div class="bg-white p-4 rounded-2xl shadow">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-semibold">Tabel Kategori Perusahaan</h2>
-                <select class="border rounded px-2 py-1 text-sm">
-                    <option value="Kecil">Kecil</option>
-                    <option value="Menengah">Menengah</option>
-                    <option value="Besar">Besar</option>
-                </select>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-sm">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-3 py-2 text-left">No</th>
-                            <th class="px-3 py-2 text-left">Nama Perusahaan</th>
-                            <th class="px-3 py-2 text-left">Omset Tahunan</th>
-                            <th class="px-3 py-2 text-left">Proses Kerja</th>
-                            <th class="px-3 py-2 text-left">Kategori</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($companies as $index => $company)
-                        <tr>
-                            <td class="border-t px-3 py-2">{{ $index + 1 }}</td>
-                            <td class="border-t px-3 py-2">{{ $company->company_name }}</td>
-                            <td class="border-t px-3 py-2">{{ $company->anual_turnover }}</td>
-                            <td class="border-t px-3 py-2">{{ $company->process }}</td>
-                            <td class="border-t px-3 py-2">{{ $company->business_type }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
         @stack('scripts')
 
         @push('scripts')
