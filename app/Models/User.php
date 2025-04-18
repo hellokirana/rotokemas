@@ -4,18 +4,19 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Notifications\Notifiable;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Laravolt\Indonesia\Models\City as IndonesiaCity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Laravolt\Indonesia\Models\Province as IndonesiaProvince;
-use Laravolt\Indonesia\Models\City as IndonesiaCity;
-use Laravolt\Indonesia\Models\District as IndonesiaDistrict;
 use Laravolt\Indonesia\Models\Village as IndonesiaVillage;
+use Laravolt\Indonesia\Models\District as IndonesiaDistrict;
+use Laravolt\Indonesia\Models\Province as IndonesiaProvince;
 
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -28,22 +29,30 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'company_name',
         'email',
         'email_verified_at',
         'password',
         'avatar',
-        'no_telp',
-        'alamat',
-        'village_code',
-        'district_code',
-        'city_code',
-        'province_code',
+        'type',
         'status',
-        'no_rekening',
-        'rt',
-        'rw',
-        'kategori_id',
+        'founded_year',
+        'company_address',
+        'company_phone',
+        'company_website',
+        'contact_name',
+        'contact_phone',
+        'contact_department',
+        'contact_position',
+        'contact_email',
+        'business_type',
+        'total_employee',
+        'printing_line_total',
+        'process_printing',
+        'process',
+        'anual_turnover',
+        'film_production',
+        'joined_at'
     ];
 
     /**
@@ -65,48 +74,26 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'joined_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
 
 
     protected $appends = ['image_url'];
-    public function isWorker()
-    {
-        return $this->hasRole('worker');
-    }
+
     public function getImageUrlAttribute()
     {
         return $this->avatar ? asset('storage/user') . '/' . $this->avatar : 'https://via.placeholder.com/150x150.png';
     }
-
-    public function proofs()
+    public function getFormattedJoinedAtAttribute()
     {
-        return $this->hasMany(WorkerProof::class);
-    }
-    public function province()
-    {
-        return $this->belongsTo(IndonesiaProvince::class, 'province_code', 'code');
+        return $this->joined_at ? date('d-m-Y', strtotime($this->joined_at)) : '-';
     }
 
-    public function city()
+    public function sendEmailVerificationNotification()
     {
-        return $this->belongsTo(IndonesiaCity::class, 'city_code', 'code');
+        $this->notify(new VerifyEmail);
     }
-
-    public function district()
-    {
-        return $this->belongsTo(IndonesiaDistrict::class, 'district_code', 'code');
-    }
-
-    public function village()
-    {
-        return $this->belongsTo(IndonesiaVillage::class, 'village_code', 'code');
-    }
-
-    public function kategori()
-    {
-        return $this->belongsTo(Kategori::class, 'kategori_id');
-    }
-
 }
+

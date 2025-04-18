@@ -37,7 +37,7 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
-        $this->middleware('auth')->only('logout');
+        $this->middleware('approved')->only('login');
     }
 
     /**
@@ -52,23 +52,23 @@ class LoginController extends Controller
         $this->validate($request, [
             'email' => 'required|string|email',
             'password' => 'required|string',
-            'g-recaptcha-response' => 'required', // Validasi reCAPTCHA
+            // 'g-recaptcha-response' => 'required', // Validasi reCAPTCHA
         ]);
 
         // Validasi reCAPTCHA
-        $response = $request->input('g-recaptcha-response');
-        $secret = env('RECAPTCHA_SECRET_KEY');
+        // $response = $request->input('g-recaptcha-response');
+        // $secret = env('RECAPTCHA_SECRET_KEY');
 
-        $captchaResponse = Http::asForm()->post("https://www.google.com/recaptcha/api/siteverify", [
-            'secret' => $secret,
-            'response' => $response,
-        ]);
+        // $captchaResponse = Http::asForm()->post("https://www.google.com/recaptcha/api/siteverify", [
+        //     'secret' => $secret,
+        //     'response' => $response,
+        // ]);
 
-        $captchaData = $captchaResponse->json();
+        // $captchaData = $captchaResponse->json();
 
-        if (!$captchaData['success']) {
-            return back()->withErrors(['g-recaptcha-response' => 'CAPTCHA validation failed.']);
-        }
+        // if (!$captchaData['success']) {
+        //     return back()->withErrors(['g-recaptcha-response' => 'CAPTCHA validation failed.']);
+        // }
 
         // Jika validasi CAPTCHA berhasil, lanjutkan dengan login
         if ($this->attemptLogin($request)) {
@@ -78,4 +78,21 @@ class LoginController extends Controller
         // Jika login gagal, kembalikan ke form dengan error
         return $this->sendFailedLoginResponse($request);
     }
+    protected function attemptLogin(Request $request)
+    {
+        // Check user status before attempting credentials
+        $user = \App\Models\User::where('email', $request->email)->first();
+
+        if ($user && $user->status !== 'approved') {
+            // Set error message in session
+            session()->flash('status_error', 'Your account is pending approval by an administrator. You will be notified by email once approved.');
+            return false;
+        }
+
+        return $this->guard()->attempt(
+            $this->credentials($request),
+            $request->boolean('remember')
+        );
+    }
 }
+

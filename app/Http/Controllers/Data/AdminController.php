@@ -46,10 +46,10 @@ class AdminController extends Controller
         $data->password = bcrypt($request->password);
         $data->no_telp = $request->no_telp;
         $data->alamat = $request->alamat;
-        $data->status = $request->status;
-        $fileimage       = $request->file('image');
+        $data->status = 'approved'; // Karena ini user dibuat langsung oleh admin
+        $fileimage = $request->file('image');
         if (!empty($fileimage)) {
-            $fileimageName   = date('dHis') . '.' . $fileimage->getClientOriginalExtension();
+            $fileimageName = date('dHis') . '.' . $fileimage->getClientOriginalExtension();
             Storage::putFileAs(
                 'public/user',
                 $fileimage,
@@ -92,9 +92,9 @@ class AdminController extends Controller
         $data->no_telp = $request->no_telp;
         $data->alamat = $request->alamat;
         $data->status = $request->status;
-        $fileimage       = $request->file('image');
+        $fileimage = $request->file('image');
         if (!empty($fileimage)) {
-            $fileimageName   = date('dHis') . '.' . $fileimage->getClientOriginalExtension();
+            $fileimageName = date('dHis') . '.' . $fileimage->getClientOriginalExtension();
             Storage::putFileAs(
                 'public/user',
                 $fileimage,

@@ -15,9 +15,15 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Fonts -->
-    <link rel="dns-prefetch" href="//fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+    <!-- DataTables Core CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+
+    <!-- Styles -->
+    <link href="{{ url('css/app.css') }}" rel="stylesheet">
     <!-- Scripts -->
     <link rel="stylesheet" href="{{ asset('assets/fonts/remixicon/remixicon.css') }}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css"
@@ -81,11 +87,11 @@
                                 <li class="nav-item dropdown">
                                     <a id="layanan_menu" class="nav-link dropdown-toggle" href="#" role="button"
                                         data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                        layanan
+                                        Media
                                     </a>
 
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="layanan_menu">
-                                        <a class="dropdown-item" href="{{ url('data/layanan') }}">Layanan</a>
+                                        <a class="dropdown-item" href="{{ url('data/media') }}">Media Publik</a>
                                         <a class="dropdown-item" href="{{ url('data/kategori') }}">kategori</a>
 
                                     </div>
@@ -98,7 +104,7 @@
 
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="layanan_menu">
                                         <a class="dropdown-item" href="{{ url('data/member') }}">member</a>
-                                        <a class="dropdown-item" href="{{ url('data/worker') }}">worker</a>
+                                        <a class="dropdown-item" href="{{ route('pending-members.index') }}">Pending Member</a>
                                         <a class="dropdown-item" href="{{ url('data/admin') }}">admin</a>
                                     </div>
                                 </li>
@@ -118,7 +124,7 @@
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
+                                    {{ Auth::user()->company_name }}
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -146,10 +152,25 @@
         </main>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"
         integrity="sha512-8QFTrG0oeOiyWo/VM9Y8kgxdlCryqhIxVeRpWSezdRRAvarxVtwLnGroJgnVW9/XBRduxO/z1GblzPrMQoeuew=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- DataTables & Extensions Scripts -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
         window.Laravel = {
             csrfToken: '{{ csrf_token() }}'
@@ -191,48 +212,118 @@
                 };
             })
         });
-        $(document).on('click', '.delete-post', function(e) {
-            e.preventDefault();
-
-            var url = $(this).data('url_href');
-
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: url,
-                        type: 'DELETE',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            Swal.fire(
-                                'Deleted!',
-                                response.success,
-                                'success'
-                            ).then(() => {
-                                location
-                                    .reload(); // Reload the page to see the updated list
-                            });
-                        },
-                        error: function(xhr) {
-                            Swal.fire(
-                                'Error!',
-                                'An error occurred while deleting the post.',
-                                'error'
-                            );
-                        }
+        // First the delete handler
+$(document).on('click', '.delete-post', function(e) {
+    e.preventDefault();
+    
+    var url = $(this).data('url_href');
+    
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    Swal.fire(
+                        'Deleted!',
+                        response.success,
+                        'success'
+                    ).then(() => {
+                        location.reload();
                     });
+                },
+                error: function(xhr) {
+                    Swal.fire(
+                        'Error!',
+                        'An error occurred while deleting the post.',
+                        'error'
+                    );
                 }
             });
-        });
+        }
+    });
+});
+
+// Then separately define the approve handler
+$(document).on('click', '.btn-approve', function (e) {
+    e.preventDefault();
+    var url = $(this).data('url');
+    var csrf = $(this).data('csrf');
+
+    Swal.fire({
+        title: 'Yakin ingin menyetujui member ini?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Setujui',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#28a745'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $('<form>', {
+                method: 'POST',
+                action: url
+            })
+            .append($('<input>', {
+                type: 'hidden',
+                name: '_token',
+                value: csrf
+            }))
+            .append($('<input>', {
+                type: 'hidden',
+                name: '_method',
+                value: 'PUT'
+            }))
+            .appendTo('body')
+            .submit();
+        }
+    });
+});
+
+// And separately define the reject handler
+$(document).on('click', '.btn-reject', function (e) {
+    e.preventDefault();
+    var url = $(this).data('url');
+    var csrf = $(this).data('csrf');
+
+    Swal.fire({
+        title: 'Yakin ingin menolak member ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Tolak',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#dc3545'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $('<form>', {
+                method: 'POST',
+                action: url
+            })
+            .append($('<input>', {
+                type: 'hidden',
+                name: '_token',
+                value: csrf
+            }))
+            .append($('<input>', {
+                type: 'hidden',
+                name: '_method',
+                value: 'PUT'
+            }))
+            .appendTo('body')
+            .submit();
+        }
+    });
+});
     </script>
 
     @if (Session::has('success'))
@@ -257,11 +348,8 @@
             });
         </script>
     @endif
+   
     @stack('scripts')
-
-
-
-
 </body>
 
 </html>

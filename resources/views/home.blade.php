@@ -1,345 +1,155 @@
 @extends('layouts.app')
 
+@section('title', 'Home')
+
 @section('content')
-    <div class="container my-5 text-capitalize">
-        <?php $user = Auth::user(); ?>
-        @hasanyrole('superadmin')
-            <div class="row row-cols-2 row-cols-md-5 justify-content-center">
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">Total Order</div>
+<div class="container mt-4">
+    @php $user = Auth::user(); @endphp
 
-                        <div class="card-body">
-                            <h5>{{ formating_number(\App\Models\Order::count(), 0) }}</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">Pending Order</div>
+    @hasanyrole('superadmin')
+        <h1 class="mb-4">Dashboard Admin</h1>
 
-                        <div class="card-body">
-                            <h5>{{ formating_number(\App\Models\Order::where('status_order', 1)->count(), 0) }}</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">progress Order</div>
-
-                        <div class="card-body">
-                            <h5>{{ formating_number(\App\Models\Order::wherein('status_order', [2, 3])->count(), 0) }}</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">Success Order</div>
-
-                        <div class="card-body">
-                            <h5>{{ formating_number(\App\Models\Order::where('status_order', 4)->count(), 0) }}</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">Order Dibatalkan</div>
-
-                        <div class="card-body">
-                            <h5>{{ formating_number(\App\Models\Order::where('status_order', 5)->count(), 0) }}</h5>
-                        </div>
+        <div class="row">
+            <!-- Total Anggota Aktif -->
+            <div class="col-md-3">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Anggota Aktif</h5>
+                        <p class="card-text display-6">{{ $totalMembers ?? '0' }}</p>
+                        <small class="text-muted">Perusahaan</small>
                     </div>
                 </div>
             </div>
-            <div class="card mt-3">
-                <div class="card-header">Order menunggu</div>
-                <div class="card-body">
-                    <table class="table table-hover custom_datatable_data">
-                        <thead>
-                            <tr>
-                                <th>Order</th>
-                                <th>Pemesan</th>
-                                <th>Waktu</th>
-                                <th>Alamat</th>
-                                <th>Biaya</th>
-                                <th>Bukti bayar</th>
-                                <th width="140px">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse (\App\Models\Order::where('status_order',1)->get() as $pending)
-                                <tr>
-                                    <td>{{ @$pending->layanan->title }}</td>
-                                    <td>{{ @$pending->customer->name }}</td>
-                                    <td>{{ $pending->waktu }}</td>
-                                    <td>{{ $pending->alamat }}</td>
-                                    <td>{{ formating_number($pending->nominal, 0) }}</td>
-                                    <td><img src="{{ $pending->bukti_transfer_url }}" class="img-fluid" style="width: 100px">
-                                    </td>
-                                    <td>
-                                        @if($pending->status_order == '1')
-                                            @if($pending->status_pembayaran == '2')
-                                                <a href="#" data-url="{{ url('data/order/' . $pending->id . '/bayar_diterima') }}" class="btn btn-info btn-sm mb-1 w-100 update_data" data-bs-toggle="tooltip" title="bayar_diterima">Bayar diterima</a>
-                                                <a href="#" data-url="{{ url('data/order/' . $pending->id . '/bayar_ditolak') }}" class="btn btn-warning btn-sm mb-1 w-100 update_data" data-bs-toggle="tooltip" title="bayar_ditolak">Bayar ditolak</a>
-                                            @endif
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="card mt-3">
-                <div class="card-header">Order Progress</div>
-                <div class="card-body">
-                    <table class="table table-hover custom_datatable_data">
-                        <thead>
-                            <tr>
-                                <th>Order</th>
-                                <th>worker</th>
-                                <th>Pemesan</th>
-                                <th>Waktu</th>
-                                <th>Alamat</th>
-                                <th>Biaya</th>
-                                <th>status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse (\App\Models\Order::wherein('status_order',[2,3])->get() as $progress)
-                                <tr>
-                                    <td>{{ @$progress->layanan->title }}</td>
-                                    <td>{{ @$progress->worker->name }}</td>
-                                    <td>{{ @$progress->customer->name }}</td>
-                                    <td>{{ $progress->waktu }}</td>
-                                    <td>{{ $progress->alamat }}</td>
-                                    <td>{{ formating_number($progress->nominal, 0) }}</td>
-                                    <td>{{ $progress->status_order_text }}</td>
-
-                                </tr>
-                            @empty
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        @endhasanyrole
-        @hasanyrole('worker')
-            <div class="row row-cols-2 row-cols-md-5 justify-content-center">
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">Total Wallet</div>
-
-                        <div class="card-body">
-                            <h5>{{ formating_number($user->wallet, 0) }}</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">Total Order</div>
-
-                        <div class="card-body">
-                            <h5>{{ formating_number(\App\Models\Order::where('worker_id', $user->id)->count(), 0) }}</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">progress Order</div>
-
-                        <div class="card-body">
-                            <h5>{{ formating_number(\App\Models\Order::where('worker_id', $user->id)->wherein('status_order', [2, 3])->count(),0) }}
-                            </h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">Success Order</div>
-
-                        <div class="card-body">
-                            <h5>{{ formating_number(\App\Models\Order::where('worker_id', $user->id)->where('status_order', 4)->count(),0) }}
-                            </h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">Order Dibatalkan</div>
-
-                        <div class="card-body">
-                            <h5>{{ formating_number(\App\Models\Order::where('worker_id', $user->id)->where('status_order', 5)->count(),0) }}
-                            </h5>
-                        </div>
+        
+            <!-- Anggota Pending -->
+            <div class="col-md-3">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Anggota Pending</h5>
+                        <p class="card-text display-6">{{ $pendingMembers ?? '0' }}</p>
+                        <small class="text-muted">Perusahaan</small>
                     </div>
                 </div>
             </div>
-            <div class="card mt-3">
-                <div class="card-header">Order menunggu</div>
-                <div class="card-body">
-                    <table class="table table-hover custom_datatable_data">
-                        <thead>
-                            <tr>
-                                <th>Order</th>
-                                <th>Pemesan</th>
-                                <th>Waktu</th>
-                                <th>Alamat</th>
-                                <th>Biaya</th>
-                                <th width="140px">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($orders as $pending)
-                                <tr>
-                                    <td>{{ @$pending->layanan->title }}</td>
-                                    <td>{{ @$pending->customer->name }}</td>
-                                    <td>{{ $pending->waktu }}</td>
-                                    <td>{{ $pending->alamat }}</td>
-                                    <td>{{ formating_number($pending->nominal, 0) }}</td>
-                                    <td>
-                                        <a href="#"
-                                            data-url="{{ url('data/order/' . $pending->id . '/terima_pekerjaan') }}"
-                                            class="btn btn-info btn-sm mb-1 w-100 update_data" data-bs-toggle="tooltip"
-                                            title="terima_pekerjaan">Terima Pekerjaan</a>
-                                    </td>
-                                </tr>
-                            @empty
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="card mt-3">
-                <div class="card-header">Order Progress</div>
-                <div class="card-body">
-                    <table class="table table-hover custom_datatable_data">
-                        <thead>
-                            <tr>
-                                <th>Order</th>
-                                <th>Pemesan</th>
-                                <th>Waktu</th>
-                                <th>Alamat</th>
-                                <th>Biaya</th>
-                                <th>status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse (\App\Models\Order::where('worker_id',$user->id)->wherein('status_order',[2,3])->get() as $progress)
-                                <tr>
-                                    <td>{{ @$progress->layanan->title }}</td>
-                                    <td>{{ @$progress->customer->name }}</td>
-                                    <td>{{ $progress->waktu }}</td>
-                                    <td>{{ $progress->alamat }}</td>
-                                    <td>{{ formating_number($progress->nominal, 0) }}</td>
-                                    <td>{{ $progress->status_order_text }}</td>
 
-                                </tr>
-                            @empty
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        @endhasanyrole
-
-        @hasanyrole('member')
-            <div class="row row-cols-2 row-cols-md-5 justify-content-center">
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">Total Order</div>
-
-                        <div class="card-body">
-                            <h5>{{ formating_number(\App\Models\Order::where('customer_id', $user->id)->count(), 0) }}</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">Pending Order</div>
-
-                        <div class="card-body">
-                            <h5>{{ formating_number(\App\Models\Order::where('customer_id', $user->id)->where('status_order', 1)->count(),0) }}
-                            </h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">progress Order</div>
-
-                        <div class="card-body">
-                            <h5>{{ formating_number(\App\Models\Order::where('customer_id', $user->id)->wherein('status_order', [2, 3])->count(),0) }}
-                            </h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">Success Order</div>
-
-                        <div class="card-body">
-                            <h5>{{ formating_number(\App\Models\Order::where('customer_id', $user->id)->where('status_order', 4)->count(),0) }}
-                            </h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">Order Dibatalkan</div>
-
-                        <div class="card-body">
-                            <h5>{{ formating_number(\App\Models\Order::where('customer_id', $user->id)->where('status_order', 5)->count(),0) }}
-                            </h5>
-                        </div>
+            <!-- Anggota Paid -->
+            <div class="col-md-3">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Premium Member</h5>
+                        <p class="card-text display-6">{{ $memberCount ?? '0' }}</p>
+                        <small class="text-muted">Perusahaan</small>
                     </div>
                 </div>
             </div>
-            <div class="card mt-3">
-                <div class="card-header">Order Aktif</div>
-                <div class="card-body">
-                    <table class="table table-hover custom_datatable_data">
-                        <thead>
-                            <tr>
-                                <th>Order Layanan</th>
-                                <th>Waktu</th>
-                                <th>Alamat</th>
-                                <th>Biaya</th>
-                                <th>Pembayaran</th>
-                                <th>Status Order</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse (\App\Models\Order::where('customer_id',$user->id)->wherein('status_order',[1,2,3])->get() as $order)
-                                <tr>
-                                    <th>{{ @$order->layanan->title }}</th>
-                                    <th>{{ $order->waktu }}</th>
-                                    <th>{{ $order->alamat }}</th>
-                                    <th>{{ formating_number($order->nominal, 0) }}</th>
-                                    <th>{{ $order->status_pembayaran_text }}</th>
-                                    <th>{{ $order->status_order_text }}</th>
-                                    <th>
-                                        @if ($order->status_order == 1)
-                                            <a href="{{ url('data/order/' . $order->id . '/konfirmasi') }}"
-                                                class="btn btn-warning btn-sm">Konfirmasi</a>
-                                        @elseif($order->status_order == 3)
-                                            <a href="#"
-                                                data-url="{{ url('data/order/' . $order->id . '/selesai_pekerjaan') }}"
-                                                class="btn btn-info btn-sm mb-1 w-100 update_data" data-bs-toggle="tooltip"
-                                                title="selesai_pekerjaan">selesai Pekerjaan</a>
-                                        @endif
-                                    </th>
-                                </tr>
-                            @empty
-                            @endforelse
-                        </tbody>
-                    </table>
+            <!-- Anggota UnPaid -->
+            <div class="col-md-3">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Basic Member</h5>
+                        <p class="card-text display-6">{{ $partnerCount ?? '0' }}</p>
+                        <small class="text-muted">Perusahaan</small>
+                    </div>
                 </div>
             </div>
-        @endhasanyrole
+        </div>
+        
 
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-2xl shadow">
+                <h2 class="text-lg font-semibold mb-3">Kategori Perusahaan</h2>
+                <div>{!! $categoryChart->container() !!}</div>
+            </div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow">
+                <h2 class="text-lg font-semibold mb-3">Proses Cetak</h2>
+                <div>{!! $printingChart->container() !!}</div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow">
+                <h2 class="text-lg font-semibold mb-3">Badan Usaha</h2>
+                <div>{!! $businessEntityChart->container() !!}</div>
+            </div>
+        </div>
 
-    </div>
+        <div class="bg-white p-4 rounded-2xl shadow mb-6">
+            <h2 class="text-lg font-semibold mb-3">Anggota Bergabung Tiap Tahunnya</h2>
+            <div>{!! $joinPerYearChart->container() !!}</div>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl shadow">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">Tabel Kategori Perusahaan</h2>
+                <select class="border rounded px-2 py-1 text-sm">
+                    <option value="Kecil">Kecil</option>
+                    <option value="Menengah">Menengah</option>
+                    <option value="Besar">Besar</option>
+                </select>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-3 py-2 text-left">No</th>
+                            <th class="px-3 py-2 text-left">Nama Perusahaan</th>
+                            <th class="px-3 py-2 text-left">Omset Tahunan</th>
+                            <th class="px-3 py-2 text-left">Proses Kerja</th>
+                            <th class="px-3 py-2 text-left">Kategori</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($companies as $index => $company)
+                        <tr>
+                            <td class="border-t px-3 py-2">{{ $index + 1 }}</td>
+                            <td class="border-t px-3 py-2">{{ $company->company_name }}</td>
+                            <td class="border-t px-3 py-2">{{ $company->anual_turnover }}</td>
+                            <td class="border-t px-3 py-2">{{ $company->process }}</td>
+                            <td class="border-t px-3 py-2">{{ $company->business_type }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @stack('scripts')
+
+        @push('scripts')
+            {!! $categoryChart->script() !!}
+            {!! $printingChart->script() !!}
+            {!! $businessEntityChart->script() !!}
+            {!! $joinPerYearChart->script() !!}
+            <script>
+                function filterMemberType() {
+                    const dropdown = document.getElementById('memberTypeDropdown');
+                    const selected = dropdown.value;
+                    const countDisplay = document.getElementById('memberTypeCount');
+
+                    fetch(`/admin/member-type-count?type=${selected}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            countDisplay.textContent = data.count;
+                        });
+                        .catch(err => {
+                            console.error('Error fetching member type count:', err);
+                            countDisplay.textContent = '0';
+                        });
+                }                
+            </script>
+        @endpush
+    @else
+        <h1 class="mb-4">Dashboard Member</h1>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Selamat datang, {{ $user->company_name }}</h5>
+                <p class="card-text">Status: 
+                    <span class="badge bg-{{ $user->status === 'approved' ? 'success' : ($user->status === 'pending' ? 'warning' : 'danger') }}">
+                        {{ ucfirst($user->status) }}
+                    </span>
+                </p>
+                <p class="card-text">Tipe Member: {{ ucfirst($user->member_type) }}</p>
+                <p class="card-text">Email: {{ $user->company_email }}</p>
+            </div>
+        </div>
+    @endhasanyrole
+</div>
 @endsection

@@ -13,6 +13,11 @@
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.jpg') }}" type="image/x-icon">
     <link rel="icon" href="{{ asset('assets/images/favicon.jpg') }}" type="image/x-icon">
     <!-- Favicon -->
+
+    <!-- Di dalam <head> -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-XyGZ1AvwLhkdME9YyUw5o2qvWZt1Qo8h1FZZbGQUFdA+cS9bYOzCXh3n4gxQ3VnTZhKLG1rKcsEtTXCvC8Ybnw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
      
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -61,7 +66,7 @@
                                     <div class="collapse navbar-collapse show clearfix" id="navbarSupportedContent">
                                         <ul class="navigation">
                                             <li><a href="{{ url('/') }}">Home</a></li>
-                                            <li><a href="{{ url('/layanan') }}">Media & News</a></li>
+                                            <li><a href="{{ url('/media') }}">Media & News</a></li>
                                             <li><a href="{{ url('/kontak') }}">Our Members</a></li>
                                             <li><a href="{{ url('/tentang') }}">About</a></li>
 
@@ -261,6 +266,7 @@
     <script src="{{ asset('assets/js/flatpickr-min.js') }}"></script>
     <script src="{{ asset('assets/js/socialSharing.js') }}"></script>
     <script src="{{ asset('assets/js/script.js') }}"></script>
+    
     @stack('scripts')
 
 </body>

@@ -25,13 +25,41 @@ class MemberDataTable extends DataTable
             ->editColumn('created_at', function ($model) {
                 return @$model->created_at->format('d-m-Y H:i:s');
             })
+            ->editColumn('joined_at', function ($model) {
+                // More careful null checking
+                if (!$model->joined_at)
+                    return '-';
+
+                // Try to ensure it's a Carbon instance
+                if (is_string($model->joined_at)) {
+                    return date('d-m-Y', strtotime($model->joined_at));
+                }
+
+                return $model->joined_at->format('d-m-Y');
+            })
             ->addColumn('action', function ($row) {
-                $button = '<a href="' . url('data/member/' . $row->id) . '" class="btn btn-warning btn-sm mx-1" data-bs-toggle="tooltip" title="info"><i class="ri-file-info-line"></i></a>';
-                $button .= '<a href="#" data-url_href="' . route('member.destroy', $row->id) . '" class="btn btn-danger btn-sm mx-1 delete-post" data-bs-toggle="tooltip" title="Delete"  data-csrf="' . csrf_token() . '"><i class="ri-delete-bin-2-line"></i></a>';
+                $currentRoute = request()->route()->getName();
+                $button = '';
+
+                // Add info button for both pending and approved members
+                $button .= '<a href="' . url('data/member/' . $row->id . '/edit') . '" class="btn btn-warning btn-sm mx-1" data-bs-toggle="tooltip" title="info"><i class="ri-file-info-line"></i></a>';
+
+                if ($currentRoute === 'pending-members.index') {
+                    // Add approve & reject buttons for pending members
+                    $approveUrl = route('member.approve', $row->id);
+                    $rejectUrl = route('member.reject', $row->id);
+
+                    $button .= '<button type="button" class="btn btn-success btn-sm mx-1 btn-approve" data-url="' . $approveUrl . '" data-csrf="' . csrf_token() . '" data-id="' . $row->id . '">Approve</button>';
+                    $button .= '<button type="button" class="btn btn-danger btn-sm mx-1 btn-reject" data-url="' . $rejectUrl . '" data-csrf="' . csrf_token() . '" data-id="' . $row->id . '">Reject</button>';
+                } else {
+                    // Add delete button for approved members
+                    $button .= '<a href="#" data-url_href="' . route('member.destroy', $row->id) . '" class="btn btn-danger btn-sm mx-1 delete-post" data-bs-toggle="tooltip" title="Delete" data-csrf="' . csrf_token() . '"><i class="ri-delete-bin-2-line"></i></a>';
+                }
 
                 return $button;
             })
-            ->rawColumns(['image','action']);
+            ->rawColumns(['image', 'action']);
+
     }
 
     /**
@@ -39,7 +67,15 @@ class MemberDataTable extends DataTable
      */
     public function query(User $model): QueryBuilder
     {
-        return $model->newQuery()->role('member')->latest();
+        $query = $model->newQuery()->role('member');
+
+        if (request()->routeIs('pending-members.index')) {
+            $query->where('status', 'pending');
+        } else {
+            $query->where('status', 'approved');
+        }
+
+        return $query->latest();
     }
 
     /**
@@ -70,13 +106,23 @@ class MemberDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-
-            Column::make('name'),
-            Column::make('email'),
-            Column::make('no_telp'),
-            Column::make('alamat'),
-            Column::make('created_at'),
+            Column::make('joined_at')->title('Tanggal Bergabung'),
+            Column::make('company_name')->title('Nama Perusahaan'),
+            Column::make('email')->title('Email Perusahaan'),
+            Column::make('type')->title('Tipe Member'),
+            Column::make('founded_year')->title('Tahun Berdiri'),
+            Column::make('company_address')->title('Alamat Perusahaan'),
+            Column::make('company_phone')->title('Telepon Perusahaan'),
+            Column::make('company_website')->title('Website Perusahaan'),
+            Column::make('business_type')->title('Badan Usaha'),
+            Column::make('total_employee')->title('Jumlah Total Karyawan'),
+            Column::make('printing_line_total')->title('Jumlah Printing Line'),
+            Column::make('process_printing')->title('Proses Printing'),
+            Column::make('process')->title('Proses Produksi'),
+            Column::make('anual_turnover')->title('Omzet Tahunan'),
+            Column::make('film_production')->title('Produksi Film'),
             Column::computed('action')
+                ->title('Aksi')
                 ->exportable(false)
                 ->printable(false)
                 ->width(120)

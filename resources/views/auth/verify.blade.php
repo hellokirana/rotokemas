@@ -14,12 +14,27 @@
                         </div>
                     @endif
 
-                    {{ __('Before proceeding, please check your email for a verification link.') }}
-                    {{ __('If you did not receive the email') }},
-                    <form class="d-inline" method="POST" action="{{ route('verification.resend') }}">
+                    @if (session('error'))
+                        <div class="alert alert-danger" role="alert">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    <p>{{ __('Before proceeding, please check your email for a verification link.') }}</p>
+                    <p>{{ __('If you did not receive the email, you can request another one:') }}</p>
+                    
+                    <form class="mt-3" method="POST" action="{{ route('verification.resend') }}">
                         @csrf
-                        <button type="submit" class="btn btn-link p-0 m-0 align-baseline">{{ __('click here to request another') }}</button>.
+                        <div class="form-group mb-3">
+                            <label for="email">{{ __('Email Address') }}</label>
+                            <input id="email" type="email" class="form-control" name="email" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">{{ __('Resend Verification Email') }}</button>
                     </form>
+                    
+                    <div class="mt-3">
+                        <a href="{{ route('login') }}" class="btn btn-link">{{ __('Back to Login') }}</a>
+                    </div>
                 </div>
             </div>
         </div>

@@ -12,6 +12,17 @@ if (!function_exists('ListPerPage')) {
     }
 }
 
+if (!function_exists('member_type')) {
+    function member_type()
+    {
+        return [
+            'founder' => 'Founder',
+            'member' => 'Member',
+            'partner' => 'Partner',
+        ];
+    }
+}
+
 if (!function_exists('status_active')) {
     function status_active()
     {

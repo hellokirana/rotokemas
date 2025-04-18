@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use DateTime;
 use App\Models\User;
+use App\Models\Media;
 use App\Models\Order;
 use App\Models\Layanan;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Storage;
 use Laravolt\Indonesia\Models\District;
 use Laravolt\Indonesia\Models\Province;
 use Illuminate\Support\Facades\Validator;
+use ConsoleTVs\Charts\Classes\Chartjs\Chart;
 
 class HomeController extends Controller
 {
@@ -37,13 +39,123 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $orders = Order::where('status_order', 2)
-            ->where('status_pembayaran', 3) // Tambahkan filter pembayaran
-            ->where('kategori_id', Auth::user()->kategori_id)
-            ->whereNull('worker_id')
+        $user = Auth::user();
+
+        // Total anggota dengan role 'member'
+        $totalMembers = User::role('member')->where('status', 'approved')->count();
+
+        // Jumlah anggota berdasarkan status
+        $pendingMembers = User::role('member')->where('status', 'pending')->count();
+        $approvedMembers = User::role('member')->where('status', 'approved')->count();
+        $rejectedMembers = User::role('member')->where('status', 'rejected')->count();
+
+        // Jumlah anggota berdasarkan tipe member
+        $founderCount = User::role('member')->where('type', 'founder')->count();
+        $memberCount = User::role('member')->where('type', 'member')->count();
+        $partnerCount = User::role('member')->where('type', 'partner')->count();
+
+        // Ambil data perusahaan untuk tabel
+        $companies = User::role('member')
+            ->select('company_name', 'anual_turnover', 'process', 'business_type')
             ->get();
-        return view('home', compact('orders'));
+
+        // === CHARTS ===
+
+        // Hitung kategori berdasarkan omset tahunan
+        $allMembers = User::role('member')->select('anual_turnover')->get();
+
+        $kecil = $allMembers->filter(function ($user) {
+            return $user->anual_turnover === '< 100 M';
+        })->count();
+
+        $menengah = $allMembers->filter(function ($user) {
+            return $user->anual_turnover === '100 M - 500 M';
+        })->count();
+
+        $besar = $allMembers->filter(function ($user) {
+            return $user->anual_turnover === '> 500 M';
+        })->count();
+
+        $categoryChart = new Chart;
+        $categoryChart->labels(['Kecil', 'Menengah', 'Besar']);
+        $categoryChart->dataset('Kategori', 'doughnut', [$kecil, $menengah, $besar])
+            ->backgroundColor(['#36A2EB', '#FFCE56', '#FF6384']);
+
+
+
+        // Proses cetak
+        $processLabels = User::distinct()->pluck('process_printing');
+        $processData = $processLabels->map(fn($label) => User::where('process_printing', $label)->count());
+
+        $printingChart = new Chart;
+        $printingChart->labels($processLabels->toArray());
+        $printingChart->dataset('Proses Cetak', 'bar', $processData->toArray())
+            ->backgroundColor('#4BC0C0');
+
+        // Badan usaha
+        $businessLabels = User::distinct()->pluck('business_type');
+        $businessData = $businessLabels->map(fn($label) => User::where('business_type', $label)->count());
+
+        $businessEntityChart = new Chart;
+        $businessEntityChart->labels($businessLabels->toArray());
+        $businessEntityChart->dataset('Badan Usaha', 'pie', $businessData->toArray())
+            ->backgroundColor(['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']);
+
+        // Anggota bergabung per tahun
+        $joinPerYear = User::role('member')
+            ->selectRaw('YEAR(joined_at) as year, COUNT(*) as total')
+            ->groupBy('year')
+            ->orderBy('year')
+            ->pluck('total', 'year');
+
+        $joinPerYearChart = new Chart;
+        $joinPerYearChart->labels($joinPerYear->keys()->toArray());
+        $joinPerYearChart->dataset('Anggota Bergabung', 'line', $joinPerYear->values()->toArray())
+            ->backgroundColor('rgba(75, 192, 192, 0.2)')
+            ->color('rgba(75, 192, 192, 1)');
+
+        // List perusahaan berdasarkan kategori
+        $categorizedCompanies = User::role('member')
+            ->where('status', 'approved') // optional, biar yg tampil cuma yg disetujui
+            ->select('company_name', 'anual_turnover')
+            ->get()
+            ->groupBy('anual_turnover');
+
+        // Return view dengan semua data & chart
+        return view('home', compact(
+            'user',
+            'totalMembers',
+            'pendingMembers',
+            'approvedMembers',
+            'rejectedMembers',
+            'founderCount',
+            'memberCount',
+            'partnerCount',
+            'companies',
+            'categoryChart',
+            'printingChart',
+            'businessEntityChart',
+            'joinPerYearChart',
+            'categorizedCompanies',
+
+        ));
     }
+
+    public function getMemberTypeCount(Request $request)
+    {
+        $type = $request->query('type');
+
+        if ($type === 'all') {
+            $count = User::role('member')->count();
+        } else {
+            $count = User::role('member')->where('type', $type)->count();
+        }
+
+        return response()->json([
+            'count' => $count,
+        ]);
+    }
+
 
     public function profil()
     {
@@ -141,15 +253,14 @@ class HomeController extends Controller
         return $dataTable->render('data.kontak.index');
     }
 
-    public function pesan($id)
+    public function media_detail($slug)
     {
-        $data = Layanan::with('kategori')->where('status', 1)->where('id', $id)->first();
+        $data = Media::with('kategori')->where('status', 1)->where('slug', $slug)->first();
         if (empty($data)) {
             return redirect()->back()->with('error', 'data tidak ditemukan');
         }
-        $provinces = province::whereIn('code', ['36', '32', '31'])->get();
         $user = Auth::user();
-        return view('frontend.pesan', compact('data', 'provinces', 'user'));
+        return view('frontend.media_detail', compact('data', 'user'));
     }
 
     public function send_order(Request $request)

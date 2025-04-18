@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Kategori;
 use App\Models\Kontak;
-use App\Models\Layanan;
+use App\Models\Media;
 use App\Models\Slider;
 use App\Models\Testimoni;
 use Illuminate\Http\Request;
@@ -18,11 +18,11 @@ class FrontendController extends Controller
         $slider_all = Slider::where('status', 1)->orderBy('no_urut')->get();
         $kategori_all = Kategori::where('status', 1)->orderBy('no_urut')->get();
         $testimoni_all = Testimoni::where('status', 1)->orderBy('no_urut')->limit(5)->get();
-        $layanan_all = Layanan::with('kategori')->where('status', 1)->where('featured', 1)->latest()->limit(12)->get();
-        return view('frontend.welcome', compact('slider_all', 'kategori_all', 'layanan_all', 'testimoni_all'));
+        $media_all = Media::with('kategori')->where('status', 1)->where('featured', 1)->latest()->limit(12)->get();
+        return view('frontend.welcome', compact('slider_all', 'kategori_all', 'media_all', 'testimoni_all'));
     }
 
-    public function layanan(Request $request)
+    public function media(Request $request)
     {
         // Validasi input
         $request->validate([
@@ -37,8 +37,8 @@ class FrontendController extends Controller
         // Ambil semua kategori yang aktif
         $kategori_all = Kategori::where('status', 1)->orderBy('no_urut')->get();
 
-        // Query layanan
-        $query = Layanan::query();
+        // Query Media
+        $query = Media::query();
         $query->where('status', 1);
 
         // Filter berdasarkan pencarian
@@ -53,23 +53,23 @@ class FrontendController extends Controller
 
         // Paginasi hasil query
         try {
-            $layanan_all = $query->with('kategori')->latest()->paginate(15);
+            $media_all = $query->with('kategori')->latest()->paginate(15);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Terjadi kesalahan saat memuat data.');
         }
 
         // Tampilkan view dengan data
-        return view('frontend.layanan', compact('layanan_all', 'kategori_all', 'kategori', 'cari'));
+        return view('frontend.media', compact('media_all', 'kategori_all', 'kategori', 'cari'));
     }
 
-    public function layanan_detail($id)
+    public function media_detail($slug)
     {
-        $data = Layanan::with('kategori')->where('status', 1)->where('id', $id)->first();
+        $data = Media::with('kategori')->where('status', 1)->where('slug', $slug)->first();
         if (empty($data)) {
             return redirect()->back()->with('error', 'data tidak ditemukan');
         }
-        $data_related = Layanan::with('kategori')->where('status', 1)->where('id', '!=', $id)->inRandomOrder()->limit(4)->get();
-        return view('frontend.layanan_detail',compact('data','data_related'));
+        $data_related = Media::with('kategori')->where('status', 1)->where('slug', '!=', $slug)->inRandomOrder()->limit(4)->get();
+        return view('frontend.media_detail', compact('data', 'data_related'));
     }
 
     public function tentang()
