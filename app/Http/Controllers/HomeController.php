@@ -8,6 +8,7 @@ use App\Models\Media;
 use App\Models\Order;
 use App\Models\Layanan;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\DataTables\KontakDataTable;
 use App\DataTables\MemberDataTable;
 use Laravolt\Indonesia\Models\City;
@@ -159,88 +160,88 @@ class HomeController extends Controller
 
     public function profil()
     {
-        $data = Auth::user();
-        $provinces = province::whereIn('code', ['36', '32', '31'])->get();
-        return view('frontend.profil', compact('data', 'provinces'));
+        $user = Auth::user();
+        return view('frontend.profil', compact('user'));
     }
 
-
-    public function update_profil(Request $request)
+    public function update_profil(Request $request, $id)
     {
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'no_rekening' => 'nullable|string|unique:users,no_rekening,' . Auth::user()->id,
-            'password' => 'nullable|min:6',
-            'image' => 'nullable|image|max:2048',
-            'no_telp' => 'nullable|string',
-            'email' => 'nullable|email',
+        $validated = Validator::make($request->all(), [
+            'company_name' => ['required', 'string', 'max:255'],
+            'joined_at' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($id)
+            ],
+            'password' => $request->password ? ['string', 'min:8', 'confirmed'] : [],
+            'type' => ['required', Rule::in(['member', 'founder', 'partner'])], // default type
+            'founded_year' => ['nullable', 'string', 'max:255'],
+            'company_address' => ['nullable', 'string'],
+            'company_phone' => ['nullable', 'string', 'max:255'],
+            'company_website' => ['nullable', 'string', 'max:255'],
+            'contact_name' => ['nullable', 'string', 'max:255'],
+            'contact_phone' => ['nullable', 'string', 'max:255'],
+            'contact_department' => ['nullable', 'string', 'max:255'],
+            'contact_position' => ['nullable', 'string', 'max:255'],
+            'contact_email' => ['nullable', 'string', 'max:255'],
+            'business_type' => ['nullable', 'string', 'max:255'],
+            'total_employee' => ['nullable', 'string', 'max:255'],
+            'printing_line_total' => ['nullable', 'string', 'max:255'],
+            'process_printing' => ['nullable', 'string', 'max:255'],
+            'process' => ['nullable', 'array'],
+            'process.*' => ['string', 'max:255'],
+            'anual_turnover' => ['nullable', 'string', 'max:255'],
+            'film_production' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $data = User::where('id', Auth::user()->id)->first();
-        if (empty($data)) {
-            return redirect()->back()->with('error', 'data tidak ditemukan');
-        }
-        $data->name = $request->name;
-        $data->email = $request->email;
-        if (!empty($request->password)) {
-            $data->password = bcrypt($request->password);
-        }
-        $data->no_telp = $request->no_telp;
-        $data->province_code = $request->province_code;
-        $data->city_code = $request->city_code;
-        $data->district_code = $request->district_code;
-        $data->village_code = $request->village_code;
-        $data->alamat = $request->alamat;
-        $data->rt = $request->rt;
-        $data->rw = $request->rw;
-
-        if ($request->no_rekening !== $data->no_rekening) {
-            $data->no_rekening = $request->no_rekening;
+        if ($validated->fails()) {
+            return redirect()->back()
+                ->withErrors($validated)
+                ->withInput()
+                ->with('warning', 'Data gagal diupdate');
         }
 
-        $fileimage = $request->file('image');
-        if (!empty($fileimage)) {
-            $fileimageName = date('dHis') . '.' . $fileimage->getClientOriginalExtension();
-            Storage::putFileAs(
-                'public/user',
-                $fileimage,
-                $fileimageName
-            );
+        $data = User::findOrFail($id);
 
+        // Update data user
+        $data->update([
+            'avatar' => $request->avatar,
+            'company_name' => $request->company_name,
+            'email' => $request->email,
+            'password' => $request->password ? bcrypt($request->password) : $data->password,
+            'type' => $request->type,
+            'joined_at' => $request->joined_at,
+            'founded_year' => $request->founded_year,
+            'company_address' => $request->company_address,
+            'company_phone' => $request->company_phone,
+            'company_website' => $request->company_website,
+            'contact_name' => $request->contact_name,
+            'contact_phone' => $request->contact_phone,
+            'contact_department' => $request->contact_department,
+            'contact_position' => $request->contact_position,
+            'contact_email' => $request->contact_email,
+            'business_type' => $request->business_type,
+            'total_employee' => $request->total_employee,
+            'printing_line_total' => $request->printing_line_total,
+            'process_printing' => $request->process_printing,
+            'process' => implode(', ', $request->process ?? []), // Simpan sebagai string
+            'anual_turnover' => $request->anual_turnover,
+            'film_production' => $request->film_production,
+        ]);
+
+        if ($request->hasFile('image')) {
+            Storage::delete('public/user/' . $data->avatar);
+            $fileimageName = date('dHis') . '.' . $request->file('image')->getClientOriginalExtension();
+            $request->file('image')->storeAs('public/user', $fileimageName);
             $data->avatar = $fileimageName;
+            $data->save();
         }
-        $data->update();
-        Session::flash('success', 'data berhasil di simpan');
-        return redirect('profil');
-    }
-    public function getCities($province_code)
-    {
-        try {
-            $cities = City::where('province_code', $province_code)->get();
-            return response()->json($cities);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
 
-    public function getDistricts($city_code)
-    {
-        try {
-            $districts = District::where('city_code', $city_code)->get();
-            return response()->json($districts);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-    public function getVillages($district_code)
-    {
-        try {
-            $villages = Village::where('district_code', $district_code)->get();
-            return response()->json($villages);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        Session::flash('success', 'Data berhasil diupdate');
+        return redirect()->route('data.member.index');
     }
 
     public function member(MemberDataTable $dataTable)

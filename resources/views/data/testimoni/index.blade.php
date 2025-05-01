@@ -4,7 +4,7 @@
     <div class="container">
         <div class="card">
             <div class="card-header d-md-flex justify-content-between text-capitalize">
-                Manage testimoni
+                Manage Logo Member
                 <a href="{{ route('testimoni.create') }}" class="btn btn-primary">Add New</a>
    
             </div>

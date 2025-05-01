@@ -34,7 +34,7 @@ class TestimoniDataTable extends DataTable
 
                 return $button;
             })
-            ->rawColumns(['image','action']);
+            ->rawColumns(['image', 'action']);
     }
 
     /**
@@ -77,8 +77,7 @@ class TestimoniDataTable extends DataTable
             Column::make('no_urut')->width(50)->orderable(false)->searchable(false),
             Column::make('image')->width(50)->orderable(false)->searchable(false),
             Column::make('nama'),
-            Column::make('rating'),
-            Column::make('konten'),
+            Column::make('type'),
             Column::make('status')->width(50)->orderable(false)->searchable(false),
             Column::computed('action')
                 ->exportable(false)

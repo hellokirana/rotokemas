@@ -3,15 +3,20 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Data\NewsController;
+use App\Http\Controllers\Data\AgendaController;
 use App\Http\Controllers\Data\MemberController;
 use App\Http\Controllers\Data\WorkerController;
+use App\Http\Controllers\AgendaMemberController;
 use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\Data\AgendaParticipantController;
 
 Route::get('/', [App\Http\Controllers\FrontendController::class, 'index']);
 Route::get('/media', [App\Http\Controllers\FrontendController::class, 'media']);
 Route::get('/media/{id}', [App\Http\Controllers\FrontendController::class, 'media_detail']);
-Route::get('/tentang', [App\Http\Controllers\FrontendController::class, 'tentang']);
-Route::get('/kontak', [App\Http\Controllers\FrontendController::class, 'kontak']);
+Route::get('/about', [App\Http\Controllers\FrontendController::class, 'about']);
+Route::get('/our_member', [App\Http\Controllers\FrontendController::class, 'our_member']);
+Route::get('/contact', [App\Http\Controllers\FrontendController::class, 'contact']);
 Route::post('/send_kontak', [App\Http\Controllers\FrontendController::class, 'send_kontak']);
 
 Auth::routes(['verify' => true]);
@@ -26,6 +31,20 @@ Route::post('/email/resend', [VerificationController::class, 'resend'])
 Route::get('/email/verified-success', function () {
     return view('auth.verified-success');
 })->name('verification.success');
+
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('news')->name('news.')->group(function () {
+        Route::get('/', [NewsController::class, 'index'])->name('index');
+        Route::get('/create', [NewsController::class, 'create'])->name('create');
+        Route::post('/', [NewsController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [NewsController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [NewsController::class, 'update'])->name('update');
+        Route::delete('/{id}', [NewsController::class, 'destroy'])->name('destroy');
+
+
+    });
+    Route::get('data/news/{slug}', [App\Http\Controllers\Data\NewsController::class, 'show'])->name('news.show');
+});
 
 Route::group(['middleware' => 'auth', 'approved', 'verified'], function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

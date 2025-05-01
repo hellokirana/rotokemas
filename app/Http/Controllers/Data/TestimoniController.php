@@ -29,6 +29,7 @@ class TestimoniController extends Controller
         $validated = Validator::make($request->all(), [
             'no_urut' => 'required',
             'nama' => 'required',
+            'type' => 'required',
             'status' => 'required',
         ]);
 
@@ -42,12 +43,11 @@ class TestimoniController extends Controller
         $data = new Testimoni();
         $data->no_urut = $request->no_urut;
         $data->nama = $request->nama;
-        $data->rating = $request->rating;
-        $data->konten = $request->konten;
+        $data->type = $request->type;
         $data->status = $request->status;
-        $fileimage       = $request->file('image');
+        $fileimage = $request->file('image');
         if (!empty($fileimage)) {
-            $fileimageName   = date('dHis') . '.' . $fileimage->getClientOriginalExtension();
+            $fileimageName = date('dHis') . '.' . $fileimage->getClientOriginalExtension();
             Storage::putFileAs(
                 'public/testimoni',
                 $fileimage,
@@ -72,6 +72,7 @@ class TestimoniController extends Controller
         $validated = $request->validate([
             'no_urut' => 'required|integer',
             'nama' => 'required|string',
+            'type' => 'required|string',
             'status' => 'required',
         ]);
 
@@ -81,13 +82,14 @@ class TestimoniController extends Controller
         }
         $data->no_urut = $request->no_urut;
         $data->nama = $request->nama;
+        $data->type = $request->type;
         $data->rating = $request->rating;
         $data->konten = $request->konten;
         $data->status = $request->status;
 
-        $fileimage       = $request->file('image');
+        $fileimage = $request->file('image');
         if (!empty($fileimage)) {
-            $fileimageName   = date('dHis') . '.' . $fileimage->getClientOriginalExtension();
+            $fileimageName = date('dHis') . '.' . $fileimage->getClientOriginalExtension();
             Storage::putFileAs(
                 'public/testimoni',
                 $fileimage,

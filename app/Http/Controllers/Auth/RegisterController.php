@@ -47,7 +47,7 @@ class RegisterController extends Controller
             'process.*' => ['string', 'max:255'],
             'anual_turnover' => ['nullable', 'string', 'max:255'],
             'film_production' => ['nullable', 'string', 'max:255'],
-            // 'g-recaptcha-response' => 'required', // Validasi reCAPTCHA
+            'g-recaptcha-response' => 'required', // Validasi reCAPTCHA
         ]);
     }
 
@@ -57,24 +57,24 @@ class RegisterController extends Controller
         $this->validator($request->all())->validate();
 
         // Validasi reCAPTCHA
-        // $response = $request->input('g-recaptcha-response');
-        // $secret = env('RECAPTCHA_SECRET_KEY');
+        $response = $request->input('g-recaptcha-response');
+        $secret = env('RECAPTCHA_SECRET_KEY');
 
-        // // Kirim permintaan ke Google untuk memverifikasi reCAPTCHA
-        // $captchaResponse = Http::asForm()->post("https://www.google.com/recaptcha/api/siteverify", [
-        //     'secret' => $secret,
-        //     'response' => $response,
-        // ]);
+        // Kirim permintaan ke Google untuk memverifikasi reCAPTCHA
+        $captchaResponse = Http::asForm()->post("https://www.google.com/recaptcha/api/siteverify", [
+            'secret' => $secret,
+            'response' => $response,
+        ]);
 
-        // $captchaData = $captchaResponse->json();
+        $captchaData = $captchaResponse->json();
 
         // // Cek apakah reCAPTCHA valid
-        // if (!$captchaData['success']) {
-        //     return back()->withErrors(['g-recaptcha-response' => 'CAPTCHA verification failed.']);
-        // }
+        if (!$captchaData['success']) {
+            return back()->withErrors(['g-recaptcha-response' => 'CAPTCHA verification failed.']);
+        }
 
         // Jika validasi berhasil, buat pengguna baru
-        
+
         $user = $this->create($request->all());
 
         $user->sendEmailVerificationNotification();

@@ -11,7 +11,7 @@
 
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.jpg') }}" type="image/x-icon">
-    <link rel="icon" href="{{ asset('assets/images/favicon.jpg') }}" type="image/x-icon">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
     <!-- Favicon -->
 
     <!-- Di dalam <head> -->
@@ -67,8 +67,9 @@
                                         <ul class="navigation">
                                             <li><a href="{{ url('/') }}">Home</a></li>
                                             <li><a href="{{ url('/media') }}">Media & News</a></li>
-                                            <li><a href="{{ url('/kontak') }}">Our Members</a></li>
-                                            <li><a href="{{ url('/tentang') }}">About</a></li>
+                                            <li><a href="{{ url('/our_member') }}">Our Members</a></li>
+                                            <li><a href="{{ url('/about') }}">About</a></li>
+                                            <li><a href="{{ url('/contact') }}">Contact Us</a></li>
 
                                         </ul>
                                     </div>
@@ -161,48 +162,29 @@
                     <div class="footer-top-logo">
                         <img src="{{ asset('assets/images/logo.png') }}" alt="logo">
                     </div>
-                    <div class="social-media">
+                    {{-- <div class="social-media">
                         <ul>
                             <li><a href="#0"><i class="fa-brands fa-facebook-f"></i></a></li>
                             <li><a href="#0"><i class="icon-twiter"></i></a></li>
                             <li><a href="#0"><i class="fa-brands fa-linkedin-in"></i></a></li>
                             <li><a href="#0"><i class="fa-brands fa-instagram"></i></a></li>
                         </ul>
-                    </div>
+                    </div> --}}
                 </div>
                 <div class="footer-widget-container">
                     <div class="row">
                         <div class="col-xl-3 col-lg-4 col-md-6">
                             <div class="footer-widget about-widget">
                                 <div class="about-widget-inner">
-                                    <h6 class="footer-widget-title">Tentang</h6>
+                                    <h6 class="footer-widget-title">About</h6>
                                     <p class="text-justify">
-                                        Dekat adalah platform layanan digital yang dikembangkan oleh Disnaker Kota Depok untuk mempermudah masyarakat dalam mencari dan menggunakan berbagai jasa profesional. Kami menghadirkan layanan dengan paket lengkap dan harga tetap, dirancang untuk memenuhi kebutuhan Anda secara praktis dan efisien.
+                                        The Packaging Industry Association - Rotokemas is an organization established to support the development of the packaging industry in Indonesia, focusing on innovation, standardization, and collaboration among industry players.
                                     </p>
 
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-3  col-lg-4  col-md-4">
-                            <div class="footer-widget company-widget">
-                                <div class="company-widget-inner">
-                                    <h6 class="footer-widget-title">Kontak</h6>
-                                    <ul class="footer-widget-list">
-                                        <li><a href="{{ url('/kontak') }}">Kontak</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-2 col-lg-4  col-md-2">
-                            <div class="footer-widget support-widget">
-                                <div class="support-widget-inner">
-                                    <h6 class="footer-widget-title">Suport</h6>
-                                    <ul class="footer-widget-list">
-                                        <li><a href="#0">Tutorial</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                        
                         <div class="col-xl-4 col-lg-6 col-md-8">
                             <div class="footer-widget newsletter-widget">
                                 <div class="newsletter-widget-inner">
@@ -210,9 +192,10 @@
                                     <div class="footer-newsletter-info">
 
                                         <div class="footer-contact-info">
-                                            <a href="#0"><i class="fa-light fa-location-dot"></i>Jl. Margonda Raya No.54, Depok, Kec. Pancoran Mas, Kota Depok, Jawa Barat 16431</a>
-                                            <a href="mailto:example@gmail.com"><i class="fa-light fa-envelope"></i>
-                                            disnakerkotadepok@gmail.com</a>
+                                            <a href="https://maps.app.goo.gl/84TH16A5Q1TZs1c2A" target="_blank"><i class="fa-light fa-location-dot" ></i>Panin Tower, 15th Floor, Senayan City, Jalan Asia Afrika Lot. 19, Jakarta Pusat, Indonesia</a>
+                                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=rotokemas@gmail.com" target="_blank">
+                                                <i class="fa-light fa-envelope"></i> rotokemas@gmail.com
+                                              </a> 
                                         </div>
                                     </div>
                                 </div>
@@ -224,7 +207,7 @@
             <div class="footer-copyright">
                 <div class="container">
                     <div class="footer-copyright-content">
-                        <p> &copy; 2025 | Alrights reserved
+                        <p> &copy; 2025 Rotokemas Indonesia | Alrights reserved
                     </div>
                 </div>
             </div>

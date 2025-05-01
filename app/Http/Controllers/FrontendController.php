@@ -72,14 +72,24 @@ class FrontendController extends Controller
         return view('frontend.media_detail', compact('data', 'data_related'));
     }
 
-    public function tentang()
+    public function about()
     {
-        return view('frontend.tentang');
+        return view('frontend.about');
     }
 
-    public function kontak()
+    public function our_member()
     {
-        return view('frontend.kontak');
+        $founders = Testimoni::where('type', 'Founder')->get();
+        $members = Testimoni::where('type', 'Member')->get();
+        $partners = Testimoni::where('type', 'Partner')->get();
+        $testimoni_all = Testimoni::orderBy('nama')->get();
+
+        return view('frontend.our_member', compact('founders', 'members', 'partners', 'testimoni_all'));
+    }
+
+    public function contact()
+    {
+        return view('frontend.contact');
     }
 
     public function send_kontak(Request $request)
@@ -106,4 +116,5 @@ class FrontendController extends Controller
         $data->save();
         return redirect()->back()->with('success', 'Pesan berhasil di kirim');
     }
+
 }

@@ -13,6 +13,7 @@ class Testimoni extends Model
     protected $fillable = [
         'no_urut',
         'nama',
+        'type',
         'rating',
         'konten',
         'image',
